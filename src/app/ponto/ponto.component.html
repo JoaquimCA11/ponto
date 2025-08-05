@@ -1,0 +1,16 @@
+<h2>Registro de Ponto</h2>
+
+<button (click)="registrarPonto()">Registrar Localização</button>
+
+<div *ngIf="latitude !== null && longitude !== null">
+  <p><strong>Latitude:</strong> {{ latitude }}</p>
+  <p><strong>Longitude:</strong> {{ longitude }}</p>
+</div>
+
+<div *ngIf="endereco">
+  <p><strong>Endereço:</strong> {{ endereco }}</p>
+</div>
+
+<div *ngIf="erro" style="color: red;">
+  {{ erro }}
+</div>
