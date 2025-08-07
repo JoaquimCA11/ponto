@@ -47,7 +47,7 @@ readonly RAIO_METROS = 100; // 100 metros de raio
         (error) => {
   switch (error.code) {
     case error.PERMISSION_DENIED:
-      this.erro = 'Permissão de localização negada. Habilite o acesso nas configurações do navegador ou sistema.';
+      this.erro = 'Ponto não poderá ser aferido por falta de acesso';
       break;
     case error.POSITION_UNAVAILABLE:
       this.erro = 'Informação de localização indisponível.';
@@ -86,7 +86,7 @@ readonly RAIO_METROS = 100; // 100 metros de raio
     });
   }
   getDistanciaEmMetros(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000; // Raio da Terra em metros
+  const R = 6371000;
   const rad = (x: number) => x * Math.PI / 180;
 
   const dLat = rad(lat2 - lat1);
