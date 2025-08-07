@@ -14,6 +14,10 @@ export class PontoComponent {
   longitude: number | null = null;
   endereco: string | null = null;
   erro: string | null = null;
+readonly EMPRESA_LAT = -22.5126777;
+readonly EMPRESA_LON = -43.1813659;
+
+readonly RAIO_METROS = 100; // 100 metros de raio
 
   constructor(private http: HttpClient) {}
 
@@ -21,16 +25,43 @@ export class PontoComponent {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          this.latitude = position.coords.latitude;
-          this.longitude = position.coords.longitude;
-          this.erro = null;
+  this.latitude = position.coords.latitude;
+  this.longitude = position.coords.longitude;
 
-          this.buscarEndereco(this.latitude, this.longitude);
-        },
+  const distancia = this.getDistanciaEmMetros(
+    this.latitude,
+    this.longitude,
+    this.EMPRESA_LAT,
+    this.EMPRESA_LON
+  );
+
+  if (distancia > this.RAIO_METROS) {
+    this.erro = `Você está fora da área permitida. Distância: ${Math.round(distancia)} metros.`;
+  } else {
+    this.erro = null;
+  }
+
+  this.buscarEndereco(this.latitude, this.longitude);
+},
+
         (error) => {
-          this.erro = `Erro: ${error.message}`;
-          this.endereco = null;
-        },
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      this.erro = 'Permissão de localização negada. Habilite o acesso nas configurações do navegador ou sistema.';
+      break;
+    case error.POSITION_UNAVAILABLE:
+      this.erro = 'Informação de localização indisponível.';
+      break;
+    case error.TIMEOUT:
+      this.erro = 'Tempo de espera para obter localização excedido.';
+      break;
+    default:
+      this.erro = 'Erro desconhecido ao obter localização.';
+      break;
+  }
+  this.endereco = null;
+},
+
         {
           enableHighAccuracy: true,
           timeout: 10000,
@@ -54,4 +85,20 @@ export class PontoComponent {
       }
     });
   }
+  getDistanciaEmMetros(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000; // Raio da Terra em metros
+  const rad = (x: number) => x * Math.PI / 180;
+
+  const dLat = rad(lat2 - lat1);
+  const dLon = rad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 }
